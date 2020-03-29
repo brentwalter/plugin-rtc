@@ -21,30 +21,38 @@ module.exports.handler = (context, event, callback) => {
   let response = new Twilio.Response();
   response.appendHeader('Content-Type', 'application/json');
 
-  if (Date.now() > API_PASSCODE_EXPIRY) {
-    response.setStatusCode(401);
-    response.setBody({
-      error: {
-        message: 'passcode expired',
-        explanation:
-          'The passcode used to validate application users has expired. Re-deploy the application to refresh the passcode.',
-      },
-    });
-    callback(null, response);
-    return;
-  }
+  //
+  // Disabling all passcode protection. This is the passcode that guards the
+  // entire application. That functionality makes no sense for our needs. We
+  // will have a room by room passcode. So, I'm deactivating it all. I'm leaving
+  // it in place so we have a reference for how to interact with Twilio's
+  // serverless infra without having to reverse engineer everything from their
+  // docs.
+  //
+  // if (Date.now() > API_PASSCODE_EXPIRY) {
+  //   response.setStatusCode(401);
+  //   response.setBody({
+  //     error: {
+  //       message: 'passcode expired',
+  //       explanation:
+  //         'The passcode used to validate application users has expired. Re-deploy the application to refresh the passcode.',
+  //     },
+  //   });
+  //   callback(null, response);
+  //   return;
+  // }
 
-  if (API_PASSCODE + appID !== passcode) {
-    response.setStatusCode(401);
-    response.setBody({
-      error: {
-        message: 'passcode incorrect',
-        explanation: 'The passcode used to validate application users is incorrect.',
-      },
-    });
-    callback(null, response);
-    return;
-  }
+  // if (API_PASSCODE + appID !== passcode) {
+  //   response.setStatusCode(401);
+  //   response.setBody({
+  //     error: {
+  //       message: 'passcode incorrect',
+  //       explanation: 'The passcode used to validate application users is incorrect.',
+  //     },
+  //   });
+  //   callback(null, response);
+  //   return;
+  // }
 
   if (!user_identity) {
     response.setStatusCode(400);
