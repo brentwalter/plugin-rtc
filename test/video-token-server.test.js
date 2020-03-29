@@ -13,16 +13,16 @@ const mockContext = {
 };
 
 describe('the video-token-server', () => {
-  it('should return an "unauthorized" error when the passcode is incorrect', () => {
+  it('should return an "unauthorized" error when the room_name is not on whitelist', () => {
     Date.now = () => 5;
 
-    handler(mockContext, { passcode: '9876543210', user_identity: 'test identity' }, callback);
+    handler(mockContext, { passcode: '9876543210', user_identity: 'test identity', room_name: 'notOnTheList' }, callback);
 
     expect(callback).toHaveBeenCalledWith(null, {
       body: {
         error: {
-          message: 'passcode incorrect',
-          explanation: 'The passcode used to validate application users is incorrect.',
+          message: 'room_name incorrect',
+          explanation: 'The room_name submitted is incorrect.',
         },
       },
       headers: { 'Content-Type': 'application/json' },
@@ -30,17 +30,50 @@ describe('the video-token-server', () => {
     });
   });
 
-  it('should return an "expired" error when the current time is past the API_PASSCODE_EXPIRY time', () => {
-    Date.now = () => 15;
+  it('should return an "unauthorized" error when the room_name is not submitted', () => {
+    Date.now = () => 5;
 
-    handler(mockContext, { passcode: '1234566789', user_identity: 'test identity'}, callback);
+    handler(mockContext, { passcode: '9876543210', user_identity: 'test identity' }, callback);
 
     expect(callback).toHaveBeenCalledWith(null, {
       body: {
         error: {
-          message: 'passcode expired',
-          explanation:
-            'The passcode used to validate application users has expired. Re-deploy the application to refresh the passcode.',
+          message: 'room_name incorrect',
+          explanation: 'The room_name submitted is incorrect.',
+        },
+      },
+      headers: { 'Content-Type': 'application/json' },
+      statusCode: 401,
+    });
+  });
+
+  it('should return an "unauthorized" error when the passcode is not submitted', () => {
+    Date.now = () => 5;
+
+    handler(mockContext, { room_name: 'brent', user_identity: 'test identity' }, callback);
+
+    expect(callback).toHaveBeenCalledWith(null, {
+      body: {
+        error: {
+          message: 'passcode incorrect',
+          explanation: 'The passcode used to access this room_name is incorrect.',
+        },
+      },
+      headers: { 'Content-Type': 'application/json' },
+      statusCode: 401,
+    });
+  });
+
+  it('should return an "unauthorized" error when the passcode is incorrect', () => {
+    Date.now = () => 5;
+
+    handler(mockContext, { room_name: 'brent', passcode: 'notCorrect', user_identity: 'test identity' }, callback);
+
+    expect(callback).toHaveBeenCalledWith(null, {
+      body: {
+        error: {
+          message: 'passcode incorrect',
+          explanation: 'The passcode used to access this room_name is incorrect.',
         },
       },
       headers: { 'Content-Type': 'application/json' },
@@ -51,7 +84,7 @@ describe('the video-token-server', () => {
   it('should return a "missing user_identity" error when the "user_identity" parameter is not supplied', () => {
     Date.now = () => 5;
 
-    handler(mockContext, { passcode: '1234566789' }, callback);
+    handler(mockContext, { room_name: 'brent', passcode: 'eb3ed78b2bb6a0ca2491df488f4cd632' }, callback);
 
     expect(callback).toHaveBeenCalledWith(null, {
       body: {
@@ -66,7 +99,10 @@ describe('the video-token-server', () => {
     });
   });
 
-  it('should return a token when no room_name is supplied', () => {
+  // I've left this in because I have a feeling making room_name mandatory
+  // may break the client code.
+  // I've deactivated it because it is not a valid test.
+  xit('should return a token when no room_name is supplied', () => {
     Date.now = () => 5;
 
     handler(mockContext, { passcode: '1234566789',  user_identity: 'test identity' }, callback);
@@ -90,9 +126,9 @@ describe('the video-token-server', () => {
     });
   });
 
-  it('should return a valid token when passcode, room_name, and user_identity parameters are supplied', () => {
+  it('should return a valid token when whitelisted room_name with matching passcode plus a user_identity are supplied', () => {
     Date.now = () => 5;
-    handler(mockContext, { passcode: '1234566789', room_name: 'test-room', user_identity: 'test-user' }, callback);
+    handler(mockContext, { passcode: 'eb3ed78b2bb6a0ca2491df488f4cd632', room_name: 'brent', user_identity: 'test-user' }, callback);
 
     expect(callback).toHaveBeenCalledWith(null, {
       body: { token: expect.any(String) },
@@ -105,7 +141,7 @@ describe('the video-token-server', () => {
       grants: {
         identity: 'test-user',
         video: {
-          room: 'test-room',
+          room: 'brent',
         },
       },
       iat: 0,
