@@ -8,7 +8,7 @@ class DeleteCommand extends TwilioClientCommand {
 
     if (appInfo) {
       await this.twilioClient.serverless.services(appInfo.sid).remove();
-      console.log(`Removed app with Passcode: ${appInfo.passcode}`);
+      console.log(`Removed app with URL: ${appInfo.url}`);
     } else {
       console.log('There is no app to delete');
     }
@@ -21,7 +21,7 @@ DeleteCommand.description = 'Delete a Programmable Video app';
 
 DeleteCommand.examples = [
   `$ twilio rtc:apps:video:delete
-Removed app with Passcode: 1111111111`,
+Removed app with URL: https://video-app-4023-dev.twil.io`,
 ];
 
 module.exports = DeleteCommand;

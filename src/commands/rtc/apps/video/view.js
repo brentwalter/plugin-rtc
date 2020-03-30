@@ -14,8 +14,8 @@ ViewCommand.description = 'View a Programmable Video app';
 
 ViewCommand.examples = [
   `$ twilio rtc:apps:video:view
-Web App URL: https://video-app-1111-dev.twil.io?passcode=1111111111
-Passcode: 1111111111`,
+Web App URL: https://video-app-1111-dev.twil.io
+`,
 ];
 
 module.exports = ViewCommand;

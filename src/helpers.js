@@ -77,19 +77,20 @@ async function getAppInfo() {
 
   const assets = await appInstance.assets.list();
 
-  const passcodeVar = variables.find(v => v.key === 'API_PASSCODE');
-  const expiryVar = variables.find(v => v.key === 'API_PASSCODE_EXPIRY');
+  // const passcodeVar = variables.find(v => v.key === 'API_PASSCODE');
+  // const expiryVar = variables.find(v => v.key === 'API_PASSCODE_EXPIRY');
 
-  const passcode = passcodeVar ? passcodeVar.value : '';
-  const expiry = expiryVar ? expiryVar.value : '';
+  // const passcode = passcodeVar ? passcodeVar.value : '';
+  // const expiry = expiryVar ? expiryVar.value : '';
 
-  const fullPasscode = getPasscode(environment.domainName, passcode);
+  // const fullPasscode = getPasscode(environment.domainName, passcode);
 
   return {
-    url: `https://${environment.domainName}?passcode=${fullPasscode}`,
-    expiry: moment(Number(expiry)).toString(),
+    url: `https://${environment.domainName}`,
+    // url: `https://${environment.domainName}?passcode=${fullPasscode}`,
+    // expiry: moment(Number(expiry)).toString(),
     sid: app.sid,
-    passcode: fullPasscode,
+    // passcode: fullPasscode,
     hasAssets: Boolean(assets.length),
   };
 }
@@ -105,20 +106,21 @@ async function displayAppInfo() {
   if (appInfo.hasAssets) {
     console.log(`Web App URL: ${appInfo.url}`);
   }
-  console.log(`Passcode: ${appInfo.passcode}`);
-  console.log(`Expires: ${appInfo.expiry}`);
+  // console.log(`Passcode: ${appInfo.passcode}`);
+  // console.log(`Expires: ${appInfo.expiry}`);
 }
 
 async function deploy() {
   const assets = this.flags['app-directory'] ? await getAssets(this.flags['app-directory']) : [];
+  const environment = this.flags['environment'];
 
   const serverlessClient = new TwilioServerlessApiClient({
     accountSid: this.twilioClient.username,
     authToken: this.twilioClient.password,
   });
 
-  const pin = getPin();
-  const expiryTime = Date.now() + EXPIRY_PERIOD;
+  // const pin = getPin();
+  // const expiryTime = Date.now() + EXPIRY_PERIOD;
 
   const fn = fs.readFileSync(path.join(__dirname, './video-token-server.js'));
 
@@ -128,11 +130,11 @@ async function deploy() {
     env: {
       TWILIO_API_KEY_SID: this.twilioClient.username,
       TWILIO_API_KEY_SECRET: this.twilioClient.password,
-      API_PASSCODE: pin,
-      API_PASSCODE_EXPIRY: expiryTime,
+      // API_PASSCODE: pin,
+      // API_PASSCODE_EXPIRY: expiryTime,
     },
     pkgJson: {},
-    functionsEnv: 'dev',
+    functionsEnv: environment,
     functions: [
       {
         name: 'token',
