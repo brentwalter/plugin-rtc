@@ -19,11 +19,11 @@ class DeployCommand extends TwilioClientCommand {
 
     if (this.appInfo && !this.flags.override) {
       console.log('A Video app is already deployed. Use the --override flag to override the existing deployment.');
-      await displayAppInfo.call(this);
+      await displayAppInfo.call(this, this.flags['environment']);
       return;
     }
     await deploy.call(this);
-    await displayAppInfo.call(this);
+    await displayAppInfo.call(this, this.flags['environment']);
   }
 }
 DeployCommand.flags = Object.assign(

@@ -1,8 +1,7 @@
-const { APP_NAME, EXPIRY_PERIOD } = require('./constants');
+const { APP_NAME } = require('./constants');
 const { cli } = require('cli-ux');
 const fs = require('fs');
 const { getListOfFunctionsAndAssets } = require('@twilio-labs/serverless-api/dist/utils/fs');
-const moment = require('moment');
 const path = require('path');
 const { TwilioServerlessApiClient } = require('@twilio-labs/serverless-api');
 
@@ -64,39 +63,28 @@ async function findApp() {
   return services.find(service => service.friendlyName === APP_NAME);
 }
 
-async function getAppInfo() {
+async function getAppInfo(env) {
   const app = await findApp.call(this);
 
   if (!app) return null;
 
   const appInstance = await this.twilioClient.serverless.services(app.sid);
 
-  const [environment] = await appInstance.environments.list();
+  const environments = await appInstance.environments.list();
 
-  const variables = await appInstance.environments(environment.sid).variables.list();
+  const [environment] = env ? environments.filter(item => item.domainSuffix === env) : environments;
 
   const assets = await appInstance.assets.list();
 
-  // const passcodeVar = variables.find(v => v.key === 'API_PASSCODE');
-  // const expiryVar = variables.find(v => v.key === 'API_PASSCODE_EXPIRY');
-
-  // const passcode = passcodeVar ? passcodeVar.value : '';
-  // const expiry = expiryVar ? expiryVar.value : '';
-
-  // const fullPasscode = getPasscode(environment.domainName, passcode);
-
   return {
     url: `https://${environment.domainName}`,
-    // url: `https://${environment.domainName}?passcode=${fullPasscode}`,
-    // expiry: moment(Number(expiry)).toString(),
     sid: app.sid,
-    // passcode: fullPasscode,
     hasAssets: Boolean(assets.length),
   };
 }
 
-async function displayAppInfo() {
-  const appInfo = await getAppInfo.call(this);
+async function displayAppInfo(env) {
+  const appInfo = await getAppInfo.call(this, env);
 
   if (!appInfo) {
     console.log('There is no deployed app');
@@ -106,6 +94,7 @@ async function displayAppInfo() {
   if (appInfo.hasAssets) {
     console.log(`Web App URL: ${appInfo.url}`);
   }
+  console.log(`App SID: ${appInfo.sid}`);
   // console.log(`Passcode: ${appInfo.passcode}`);
   // console.log(`Expires: ${appInfo.expiry}`);
 }
@@ -114,13 +103,12 @@ async function deploy() {
   const assets = this.flags['app-directory'] ? await getAssets(this.flags['app-directory']) : [];
   const environment = this.flags['environment'];
 
+  console.log('Attempting to deploying into environment: ', environment);
+
   const serverlessClient = new TwilioServerlessApiClient({
     accountSid: this.twilioClient.username,
     authToken: this.twilioClient.password,
   });
-
-  // const pin = getPin();
-  // const expiryTime = Date.now() + EXPIRY_PERIOD;
 
   const fn = fs.readFileSync(path.join(__dirname, './video-token-server.js'));
 

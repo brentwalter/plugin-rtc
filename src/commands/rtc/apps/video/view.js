@@ -4,7 +4,7 @@ const { TwilioClientCommand } = require('@twilio/cli-core').baseCommands;
 class ViewCommand extends TwilioClientCommand {
   async run() {
     await super.run();
-    await displayAppInfo.call(this);
+    await displayAppInfo.call(this, this.flags['environment']);
   }
 }
 
