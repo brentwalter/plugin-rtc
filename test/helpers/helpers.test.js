@@ -54,7 +54,7 @@ function getMockTwilioInstance(options) {
     },
   }));
   mockAppInstance.environments.list = () =>
-    Promise.resolve([{ sid: 'env', domainName: `${APP_NAME}-5678-dev.twil.io` }]);
+    Promise.resolve([{ sid: 'env', domainSuffix: 'dev', domainName: `${APP_NAME}-5678-dev.twil.io` }]);
   mockTwilioClient.serverless.services = jest.fn(() => Promise.resolve(mockAppInstance));
   mockTwilioClient.serverless.services.list = () =>
     Promise.resolve([
@@ -170,11 +170,9 @@ describe('the getAppInfo function', () => {
       twilioClient: getMockTwilioInstance({ exists: true }),
     });
     expect(result).toEqual({
-      expiry: 'Wed May 20 2020 18:40:00 GMT+0000',
       hasAssets: false,
-      passcode: '1234565678',
       sid: 'appSid',
-      url: 'https://video-app-5678-dev.twil.io?passcode=1234565678',
+      url: 'https://with-app-5678-dev.twil.io',
     });
   });
 
@@ -183,11 +181,9 @@ describe('the getAppInfo function', () => {
       twilioClient: getMockTwilioInstance({ exists: true, hasAssets: true }),
     });
     expect(result).toEqual({
-      expiry: 'Wed May 20 2020 18:40:00 GMT+0000',
       hasAssets: true,
-      passcode: '1234565678',
       sid: 'appSid',
-      url: 'https://video-app-5678-dev.twil.io?passcode=1234565678',
+      url: 'https://with-app-5678-dev.twil.io',
     });
   });
 
@@ -208,8 +204,7 @@ describe('the displayAppInfo function', () => {
       twilioClient: getMockTwilioInstance({ exists: true }),
     });
     expect(stdout.output).toMatchInlineSnapshot(`
-      "Passcode: 1234565678
-      Expires: Wed May 20 2020 18:40:00 GMT+0000
+      "App SID: appSid
       "
     `);
   });
@@ -219,9 +214,8 @@ describe('the displayAppInfo function', () => {
       twilioClient: getMockTwilioInstance({ exists: true, hasAssets: true }),
     });
     expect(stdout.output).toMatchInlineSnapshot(`
-      "Web App URL: https://video-app-5678-dev.twil.io?passcode=1234565678
-      Passcode: 1234565678
-      Expires: Wed May 20 2020 18:40:00 GMT+0000
+      "Web App URL: https://with-app-5678-dev.twil.io
+      App SID: appSid
       "
     `);
   });
