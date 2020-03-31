@@ -78,7 +78,7 @@ Passcode: 1111111111`,
   `
 # Deploy an application token server to production environment
 # There are two environments: "dev" and "prod". "dev" is default.
-# This is an optional flag. Defualts to "dev", development environment
+# This is an optional flag. Defaults to "dev", development environment
 $ twilio rtc:apps:video:deploy --authentication passcode --environment prod
 deploying app... done
 Passcode: 1111111111`,

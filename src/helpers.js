@@ -95,8 +95,6 @@ async function displayAppInfo(env) {
     console.log(`Web App URL: ${appInfo.url}`);
   }
   console.log(`App SID: ${appInfo.sid}`);
-  // console.log(`Passcode: ${appInfo.passcode}`);
-  // console.log(`Expires: ${appInfo.expiry}`);
 }
 
 async function deploy() {
@@ -118,8 +116,6 @@ async function deploy() {
     env: {
       TWILIO_API_KEY_SID: this.twilioClient.username,
       TWILIO_API_KEY_SECRET: this.twilioClient.password,
-      // API_PASSCODE: pin,
-      // API_PASSCODE_EXPIRY: expiryTime,
     },
     pkgJson: {},
     functionsEnv: environment,
